@@ -55,7 +55,7 @@ export default function ContactoPage() {
               Te contactaremos muy pronto. Mientras tanto, también puedes escribirnos por WhatsApp.
             </p>
             <a
-              href="https://wa.me/529991234567"
+              href="https://wa.me/52995305412"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block mt-6 px-6 py-3 rounded-full text-sm font-semibold text-white"
