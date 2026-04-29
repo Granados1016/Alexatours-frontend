@@ -3,6 +3,7 @@ import { Playfair_Display, Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { getSiteConfig, waUrl } from "@/lib/configuracion";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -29,15 +30,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const config = await getSiteConfig();
+  const whatsappUrl = waUrl(config);
+
   return (
     <html lang="es" className={`${playfair.variable} ${poppins.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
-        <Header />
+        <Header waUrl={whatsappUrl} />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <Footer config={config} waUrl={whatsappUrl} />
       </body>
     </html>
   );

@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin/paquetes", label: "Paquetes", icon: "✈️", exact: false },
   { href: "/admin/destinos", label: "Destinos", icon: "🌍", exact: false },
   { href: "/admin/clientes", label: "Clientes", icon: "👥", exact: false },
+  { href: "/admin/configuracion", label: "Configuración", icon: "⚙️", exact: false },
 ];
 
 export default function Sidebar() {

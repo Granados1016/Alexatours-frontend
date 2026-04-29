@@ -1,4 +1,11 @@
-export default function ContactoCTA() {
+import type { SiteConfig } from "@/lib/configuracion";
+
+interface ContactoCTAProps {
+  config: SiteConfig;
+  waUrl: string;
+}
+
+export default function ContactoCTA({ config, waUrl }: ContactoCTAProps) {
   return (
     <section
       className="py-24 relative overflow-hidden"
@@ -29,7 +36,7 @@ export default function ContactoCTA() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
-            href="https://wa.me/529991234567?text=Hola%2C%20me%20gustaría%20cotizar%20un%20viaje"
+            href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="px-10 py-4 rounded-full text-base font-bold shadow-xl transition-all hover:scale-105"
@@ -37,16 +44,19 @@ export default function ContactoCTA() {
           >
             💬 Escríbenos por WhatsApp
           </a>
-          <a
-            href="mailto:hola@alexatours.mx"
-            className="px-10 py-4 rounded-full text-base font-semibold border-2 border-white/60 text-white hover:bg-white/10 transition-all"
-          >
-            ✉️ Enviar correo
-          </a>
+          {config.email_contacto && (
+            <a
+              href={`mailto:${config.email_contacto}`}
+              className="px-10 py-4 rounded-full text-base font-semibold border-2 border-white/60 text-white hover:bg-white/10 transition-all"
+            >
+              ✉️ Enviar correo
+            </a>
+          )}
         </div>
 
         <p className="mt-8 text-sm text-white/50">
-          También puedes llamarnos al +52 999 123 4567 · Lunes a Sábado, 9am – 7pm
+          {config.telefono_display && <>También puedes llamarnos al {config.telefono_display} · </>}
+          Lunes a Sábado, 9am – 7pm
         </p>
       </div>
     </section>

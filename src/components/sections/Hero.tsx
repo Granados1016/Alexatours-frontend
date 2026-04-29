@@ -1,12 +1,18 @@
 import Link from "next/link";
+import type { SiteConfig } from "@/lib/configuracion";
 
-export default function Hero() {
+interface HeroProps {
+  config: SiteConfig;
+  waUrl: string;
+}
+
+export default function Hero({ config, waUrl }: HeroProps) {
   return (
     <section
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
       style={{ background: "linear-gradient(135deg, #0A5D8F 0%, #0E84C7 50%, #1a9fe0 100%)" }}
     >
-      {/* Patrón decorativo de puntos dorados (guiño al logo) */}
+      {/* Patrón decorativo de puntos dorados */}
       <div
         className="absolute top-20 left-10 w-40 h-40 opacity-20"
         style={{
@@ -22,11 +28,13 @@ export default function Hero() {
         }}
       />
 
-      {/* Overlay de imagen */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-20"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600')" }}
-      />
+      {/* Overlay de imagen de fondo */}
+      {config.hero_imagen_url && (
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-20"
+          style={{ backgroundImage: `url('${config.hero_imagen_url}')` }}
+        />
+      )}
 
       {/* Contenido */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center text-white">
@@ -34,25 +42,23 @@ export default function Hero() {
           className="text-sm font-semibold tracking-[0.3em] uppercase mb-4"
           style={{ color: "#D9B96E" }}
         >
-          Agencia de Viajes · Campeche, México
+          Agencia de Viajes · {config.direccion || "México"}
         </p>
 
         <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-          Viajes para{" "}
-          <span style={{ color: "#D9B96E" }}>recordar</span>
+          {config.hero_titulo}
         </h1>
 
         <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Creamos experiencias únicas con atención personalizada y los mejores destinos del mundo.
-          Tu próxima aventura comienza aquí.
+          {config.hero_subtitulo}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
-            href="https://wa.me/529991234567?text=Hola%2C%20me%20gustaría%20cotizar%20un%20viaje"
+            href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-8 py-4 rounded-full text-base font-semibold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
+            className="px-8 py-4 rounded-full text-base font-semibold shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
             style={{ backgroundColor: "#D9B96E", color: "#0A5D8F" }}
           >
             ✈️ Cotiza tu viaje
@@ -61,7 +67,7 @@ export default function Hero() {
             href="/#paquetes"
             className="px-8 py-4 rounded-full text-base font-semibold text-white border-2 border-white/60 hover:bg-white/10 transition-all"
           >
-            Ver paquetes
+            {config.hero_cta_texto}
           </Link>
         </div>
 

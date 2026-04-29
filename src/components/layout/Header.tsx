@@ -10,8 +10,13 @@ const navLinks = [
   { href: "/contacto", label: "Contacto" },
 ];
 
-export default function Header() {
+interface HeaderProps {
+  waUrl?: string;
+}
+
+export default function Header({ waUrl }: HeaderProps) {
   const [open, setOpen] = useState(false);
+  const whatsappHref = waUrl ?? "https://wa.me/529991234567";
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
@@ -39,7 +44,7 @@ export default function Header() {
             </Link>
           ))}
           <a
-            href="https://wa.me/529991234567?text=Hola%2C%20me%20gustaría%20cotizar%20un%20viaje"
+            href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2 rounded-full text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-md"
@@ -82,7 +87,7 @@ export default function Header() {
             </Link>
           ))}
           <a
-            href="https://wa.me/529991234567?text=Hola%2C%20me%20gustaría%20cotizar%20un%20viaje"
+            href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
             className="text-center px-5 py-2 rounded-full text-sm font-semibold text-white"

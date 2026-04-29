@@ -4,16 +4,20 @@ import Paquetes from "@/components/sections/Paquetes";
 import PorQueNosotros from "@/components/sections/PorQueNosotros";
 import Testimonios from "@/components/sections/Testimonios";
 import ContactoCTA from "@/components/sections/ContactoCTA";
+import { getSiteConfig, waUrl } from "@/lib/configuracion";
 
-export default function Home() {
+export default async function Home() {
+  const config = await getSiteConfig();
+  const whatsappUrl = waUrl(config);
+
   return (
     <>
-      <Hero />
+      <Hero config={config} waUrl={whatsappUrl} />
       <Destinos />
       <Paquetes />
       <PorQueNosotros />
       <Testimonios />
-      <ContactoCTA />
+      <ContactoCTA config={config} waUrl={whatsappUrl} />
     </>
   );
 }
