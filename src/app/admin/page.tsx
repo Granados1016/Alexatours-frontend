@@ -9,26 +9,149 @@ interface Stats {
   destinos: number;
   clientes: number;
   reservas: number;
-  ultimosClientes: { id: number; nombre: string; email: string; telefono: string; ciudad: string; createdAt: string }[];
+  ultimosClientes: {
+    id: number;
+    nombre: string;
+    email: string;
+    telefono: string;
+    ciudad: string;
+    createdAt: string;
+  }[];
 }
 
-const statCards = [
-  { key: "paquetes", label: "Paquetes activos", icon: "✈️", href: "/admin/paquetes", color: "#0E84C7" },
-  { key: "destinos", label: "Destinos", icon: "🌍", href: "/admin/destinos", color: "#0A5D8F" },
-  { key: "clientes", label: "Leads / Clientes", icon: "👥", href: "/admin/clientes", color: "#D9B96E" },
-  { key: "reservas", label: "Reservas", icon: "📋", href: "#", color: "#444444" },
-];
+interface DashboardData {
+  stats: Stats;
+  mensajesSinLeer: number;
+  articulosPublicados: number;
+  articulosBorrador: number;
+  testimoniosActivos: number;
+}
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch("/admin/stats")
-      .then(setStats)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    const load = async () => {
+      try {
+        const [stats, blogRes, testimoniosRes, contactoRes] = await Promise.all([
+          apiFetch("/admin/stats"),
+          apiFetch("/admin/blog"),
+          apiFetch("/admin/testimonios"),
+          apiFetch("/admin/contacto"),
+        ]);
+
+        // Blog: puede venir como { data: [], total } o directamente como array
+        const articulos: { publicado?: boolean; estado?: string }[] = Array.isArray(blogRes)
+          ? blogRes
+          : (blogRes.data ?? []);
+        const articulosPublicados = articulos.filter(
+          (a) => a.publicado === true || a.estado === "publicado"
+        ).length;
+        const articulosBorrador = articulos.length - articulosPublicados;
+
+        // Testimonios: array directo
+        const testimonios: { activo?: boolean; estado?: string }[] = Array.isArray(testimoniosRes)
+          ? testimoniosRes
+          : (testimoniosRes.data ?? []);
+        const testimoniosActivos = testimonios.filter(
+          (t) => t.activo === true || t.activo === undefined
+        ).length;
+
+        // Mensajes de contacto: array directo
+        const mensajes: { leido?: boolean }[] = Array.isArray(contactoRes)
+          ? contactoRes
+          : (contactoRes.data ?? []);
+        const mensajesSinLeer = mensajes.filter((m) => !m.leido).length;
+
+        setData({
+          stats,
+          mensajesSinLeer,
+          articulosPublicados,
+          articulosBorrador,
+          testimoniosActivos,
+        });
+      } catch (err) {
+        console.error("Error cargando dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
   }, []);
+
+  // Cards superiores: métricas nuevas
+  const topCards = [
+    {
+      key: "mensajesSinLeer",
+      label: "Mensajes sin leer",
+      icon: "📧",
+      href: "/admin/mensajes",
+      color: "#DC2626",
+      badge: true,
+      value: data?.mensajesSinLeer ?? 0,
+    },
+    {
+      key: "articulosPublicados",
+      label: "Artículos publicados",
+      icon: "📝",
+      href: "/admin/blog",
+      color: "#0A5D8F",
+      badge: false,
+      value: data?.articulosPublicados ?? 0,
+    },
+    {
+      key: "articulosBorrador",
+      label: "Artículos en borrador",
+      icon: "📄",
+      href: "/admin/blog",
+      color: "#0E84C7",
+      badge: false,
+      value: data?.articulosBorrador ?? 0,
+    },
+    {
+      key: "testimoniosActivos",
+      label: "Testimonios activos",
+      icon: "⭐",
+      href: "/admin/testimonios",
+      color: "#D9B96E",
+      badge: false,
+      value: data?.testimoniosActivos ?? 0,
+    },
+  ];
+
+  // Cards inferiores: stats existentes
+  const statCards = [
+    {
+      key: "paquetes",
+      label: "Paquetes activos",
+      icon: "✈️",
+      href: "/admin/paquetes",
+      color: "#0E84C7",
+    },
+    {
+      key: "destinos",
+      label: "Destinos",
+      icon: "🌍",
+      href: "/admin/destinos",
+      color: "#0A5D8F",
+    },
+    {
+      key: "clientes",
+      label: "Leads / Clientes",
+      icon: "👥",
+      href: "/admin/clientes",
+      color: "#D9B96E",
+    },
+    {
+      key: "reservas",
+      label: "Reservas",
+      icon: "📋",
+      href: "#",
+      color: "#444444",
+    },
+  ];
 
   return (
     <div className="p-8">
@@ -39,7 +162,41 @@ export default function AdminDashboard() {
         <p className="text-sm text-gray-400 mt-1">Resumen general de Alexa Tours</p>
       </div>
 
-      {/* Stat cards */}
+      {/* Cards nuevas: mensajes, blog y testimonios */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+        {topCards.map((card) => (
+          <Link href={card.href} key={card.key}>
+            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer relative">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl">{card.icon}</span>
+                <span
+                  className="text-xs font-semibold px-2 py-1 rounded-full text-white"
+                  style={{ backgroundColor: card.color }}
+                >
+                  Ver
+                </span>
+              </div>
+              <div className="flex items-end gap-2">
+                <p
+                  className="font-heading text-4xl font-bold"
+                  style={{ color: card.color }}
+                >
+                  {loading ? "—" : card.value}
+                </p>
+                {/* Badge rojo si hay mensajes sin leer */}
+                {card.badge && !loading && card.value > 0 && (
+                  <span className="mb-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                    {card.value > 99 ? "99+" : card.value}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-400 mt-1">{card.label}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Cards existentes: stats del backend */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
         {statCards.map((card) => (
           <Link href={card.href} key={card.key}>
@@ -57,7 +214,11 @@ export default function AdminDashboard() {
                 className="font-heading text-4xl font-bold"
                 style={{ color: card.color }}
               >
-                {loading ? "—" : (stats?.[card.key as keyof Omit<Stats, "ultimosClientes">] as number) ?? 0}
+                {loading
+                  ? "—"
+                  : ((data?.stats?.[
+                      card.key as keyof Omit<Stats, "ultimosClientes">
+                    ] as number) ?? 0)}
               </p>
               <p className="text-sm text-gray-400 mt-1">{card.label}</p>
             </div>
@@ -83,15 +244,22 @@ export default function AdminDashboard() {
           </div>
           {loading ? (
             <p className="text-sm text-gray-400">Cargando...</p>
-          ) : stats?.ultimosClientes.length === 0 ? (
+          ) : data?.stats?.ultimosClientes?.length === 0 ? (
             <p className="text-sm text-gray-400">Aún no hay clientes registrados.</p>
           ) : (
             <div className="space-y-3">
-              {stats?.ultimosClientes.map((c) => (
-                <div key={c.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+              {data?.stats?.ultimosClientes?.map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+                >
                   <div>
-                    <p className="text-sm font-medium" style={{ color: "#444" }}>{c.nombre}</p>
-                    <p className="text-xs text-gray-400">{c.email || c.telefono || "Sin contacto"}</p>
+                    <p className="text-sm font-medium" style={{ color: "#444" }}>
+                      {c.nombre}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {c.email || c.telefono || "Sin contacto"}
+                    </p>
                   </div>
                   <p className="text-xs text-gray-300">
                     {new Date(c.createdAt).toLocaleDateString("es-MX")}
@@ -111,6 +279,7 @@ export default function AdminDashboard() {
             {[
               { href: "/admin/paquetes/nuevo", label: "➕ Agregar nuevo paquete", color: "#0E84C7" },
               { href: "/admin/destinos/nuevo", label: "🌍 Agregar nuevo destino", color: "#0A5D8F" },
+              { href: "/admin/blog/nuevo", label: "📝 Nuevo artículo de blog", color: "#444444" },
               { href: "/", label: "🌐 Ver sitio público", color: "#D9B96E" },
             ].map((a) => (
               <Link

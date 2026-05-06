@@ -46,8 +46,8 @@ export default function AdminMensajesPage() {
   const sinLeer = mensajes.filter((m) => !m.leido).length;
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
+    <div className="p-4 md:p-8">
+      <div className="mb-6 md:mb-8">
         <h1 className="font-heading text-3xl font-bold" style={{ color: "#0A5D8F" }}>Mensajes de contacto</h1>
         <p className="text-sm text-gray-400 mt-1">
           {mensajes.length} mensajes{sinLeer > 0 && <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">{sinLeer} sin leer</span>}

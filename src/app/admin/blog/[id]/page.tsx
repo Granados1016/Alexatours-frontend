@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiFetch } from "@/lib/auth";
+import ImageUpload from "@/components/admin/ImageUpload";
+import MarkdownToolbar from "@/components/admin/MarkdownToolbar";
 
 interface Form {
   titulo: string;
@@ -33,6 +35,7 @@ export default function AdminBlogFormPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(!esNuevo);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
+  const contenidoRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (esNuevo) return;
@@ -143,12 +146,17 @@ export default function AdminBlogFormPage({ params }: { params: Promise<{ id: st
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-400 uppercase mb-1.5">Contenido *</label>
+              <MarkdownToolbar
+                textareaRef={contenidoRef}
+                onChange={(val) => setForm((f) => ({ ...f, contenido: val }))}
+              />
               <textarea
+                ref={contenidoRef}
                 value={form.contenido}
                 onChange={(e) => setForm((f) => ({ ...f, contenido: e.target.value }))}
                 placeholder="Escribe el contenido completo del artículo aquí..."
                 rows={16}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 resize-y font-mono"
+                className="w-full border border-gray-200 rounded-b-xl rounded-t-none px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 resize-y font-mono border-t-0"
               />
             </div>
           </div>
@@ -226,21 +234,11 @@ export default function AdminBlogFormPage({ params }: { params: Promise<{ id: st
           {/* Imagen */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
             <h2 className="font-semibold text-sm mb-3" style={{ color: "#0A5D8F" }}>Imagen de portada</h2>
-            <input
-              type="url"
+            <ImageUpload
+              label=""
               value={form.imagen_portada}
-              onChange={(e) => setForm((f) => ({ ...f, imagen_portada: e.target.value }))}
-              placeholder="https://..."
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+              onChange={(url) => setForm((f) => ({ ...f, imagen_portada: url }))}
             />
-            {form.imagen_portada && (
-              <img
-                src={form.imagen_portada}
-                alt="Preview"
-                className="mt-3 w-full h-32 object-cover rounded-lg"
-                onError={(e) => (e.currentTarget.style.display = "none")}
-              />
-            )}
           </div>
         </div>
       </div>

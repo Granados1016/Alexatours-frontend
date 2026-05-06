@@ -42,8 +42,8 @@ export default function AdminClientesPage() {
       {loading ? (
         <p className="text-gray-400">Cargando...</p>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
             <thead style={{ backgroundColor: "#F8F3E8" }}>
               <tr>
                 {["Nombre", "Email", "Teléfono", "Ciudad", "Mensaje", "Fecha"].map((h) => (

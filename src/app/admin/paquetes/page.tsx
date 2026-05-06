@@ -61,8 +61,8 @@ export default function AdminPaquetesPage() {
       {loading ? (
         <p className="text-gray-400">Cargando...</p>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[750px]">
             <thead style={{ backgroundColor: "#F8F3E8" }}>
               <tr>
                 {["Imagen", "Nombre", "Destino", "Precio", "Días", "Dest.", "Activo", ""].map((h) => (

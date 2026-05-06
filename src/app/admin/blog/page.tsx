@@ -20,7 +20,7 @@ export default function AdminBlogPage() {
 
   const cargar = () => {
     apiFetch("/admin/blog")
-      .then(setArticulos)
+      .then((res) => setArticulos(Array.isArray(res) ? res : res.data ?? []))
       .catch(console.error)
       .finally(() => setLoading(false));
   };
@@ -42,8 +42,8 @@ export default function AdminBlogPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 md:mb-8">
         <div>
           <h1 className="font-heading text-3xl font-bold" style={{ color: "#0A5D8F" }}>Blog</h1>
           <p className="text-sm text-gray-400 mt-1">{articulos.length} artículos</p>
@@ -65,8 +65,8 @@ export default function AdminBlogPage() {
           <p>Aún no hay artículos. ¡Crea el primero!</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[700px]">
             <thead style={{ backgroundColor: "#F8F3E8" }}>
               <tr>
                 {["Título", "Slug", "Categoría", "Estado", "Fecha", ""].map((h) => (
