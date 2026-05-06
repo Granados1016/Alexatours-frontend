@@ -7,6 +7,9 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: "📊", exact: true },
   { href: "/admin/paquetes", label: "Paquetes", icon: "✈️", exact: false },
   { href: "/admin/destinos", label: "Destinos", icon: "🌍", exact: false },
+  { href: "/admin/blog", label: "Blog", icon: "📝", exact: false },
+  { href: "/admin/testimonios", label: "Testimonios", icon: "⭐", exact: false },
+  { href: "/admin/mensajes", label: "Mensajes", icon: "📧", exact: false },
   { href: "/admin/clientes", label: "Clientes", icon: "👥", exact: false },
   { href: "/admin/configuracion", label: "Configuración", icon: "⚙️", exact: false },
 ];

@@ -15,14 +15,29 @@ export default function ContactoPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clientes`, {
+      const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+      // Guardar como mensaje de contacto
+      const res = await fetch(`${API}/contacto`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono,
+          asunto: `Cotización de viaje desde ${form.ciudad || "sitio web"}`,
+          mensaje: form.mensaje,
+        }),
       });
-      if (res.ok) setEnviado(true);
+      if (res.ok) {
+        // También registrar como cliente potencial
+        await fetch(`${API}/clientes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }).catch(() => {});
+        setEnviado(true);
+      }
     } catch {
-      // Si el backend no está disponible aún, redirigir a WhatsApp
       const msg = `Hola, soy ${form.nombre}. ${form.mensaje}`;
       window.open(`https://wa.me/529991234567?text=${encodeURIComponent(msg)}`, "_blank");
     } finally {
