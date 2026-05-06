@@ -25,6 +25,7 @@ const navSections = [
     items: [
       { href: "/admin/mensajes", label: "Mensajes", icon: "📧", exact: false },
       { href: "/admin/clientes", label: "Clientes", icon: "👥", exact: false },
+      { href: "/admin/reservas", label: "Reservas", icon: "📋", exact: false },
     ],
   },
   {

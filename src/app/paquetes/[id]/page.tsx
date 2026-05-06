@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { getSiteConfig } from '@/lib/configuracion'
 import { notFound } from 'next/navigation'
+import ReservaButton from './ReservaButton'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 
@@ -241,6 +242,13 @@ export default async function PaquetePage({ params }: { params: { id: string } }
                   </span>
                 </div>
               )}
+
+              {/* Botón Reservar */}
+              <ReservaButton
+                paqueteId={paquete.id}
+                paqueteNombre={paquete.nombre}
+                precio={paquete.precio}
+              />
 
               {/* Botón WhatsApp */}
               <a
