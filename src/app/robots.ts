@@ -1,11 +1,15 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://alexatours.mx'
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://alexatours.mx";
   return {
     rules: [
-      { userAgent: '*', allow: '/', disallow: ['/admin/', '/api/'] },
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/admin", "/admin/", "/api/"],
+      },
     ],
     sitemap: `${base}/sitemap.xml`,
-  }
+  };
 }

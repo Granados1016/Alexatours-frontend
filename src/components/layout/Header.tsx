@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const BusquedaGlobal = dynamic(() => import("@/components/BusquedaGlobal"), { ssr: false });
 
 const navLinks = [
-  { href: "/#destinos", label: "Destinos" },
-  { href: "/#paquetes", label: "Paquetes" },
-  { href: "/nosotros", label: "Nosotros" },
+  { href: "/destinos", label: "Destinos" },
+  { href: "/paquetes", label: "Paquetes" },
+  { href: "/ofertas", label: "🔥 Ofertas" },
   { href: "/blog", label: "Blog" },
   { href: "/contacto", label: "Contacto" },
 ];
@@ -33,7 +36,7 @@ export default function Header({ waUrl }: HeaderProps) {
         </Link>
 
         {/* Nav desktop */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((l) => (
             <Link
               key={l.href}
@@ -44,6 +47,7 @@ export default function Header({ waUrl }: HeaderProps) {
               {l.label}
             </Link>
           ))}
+          <BusquedaGlobal />
           <a
             href={whatsappHref}
             target="_blank"

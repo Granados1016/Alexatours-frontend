@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Poppins } from "next/font/google";
 import "./globals.css";
 import PublicLayout from "@/components/layout/PublicLayout";
+import Analytics from "@/components/layout/Analytics";
 import { getSiteConfig, waUrl } from "@/lib/configuracion";
 
 const playfair = Playfair_Display({
@@ -38,6 +39,11 @@ export default async function RootLayout({
   return (
     <html lang="es" className={`${playfair.variable} ${poppins.variable} h-full`}>
       <body className="min-h-full flex flex-col antialiased">
+        <Analytics
+          gaId={config.google_analytics_id}
+          tawkPropertyId={config.tawk_property_id}
+          tawkWidgetId={config.tawk_widget_id}
+        />
         <PublicLayout config={config} waUrl={whatsappUrl}>
           {children}
         </PublicLayout>

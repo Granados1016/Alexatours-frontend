@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/auth";
+import { exportarCSV } from "@/lib/csv";
 
 interface Cliente {
   id: number; nombre: string; email: string;
@@ -23,20 +24,45 @@ export default function AdminClientesPage() {
     )
   );
 
+  const descargarCSV = () => {
+    exportarCSV(
+      filtrados.map((c) => ({
+        ID: c.id,
+        Nombre: c.nombre,
+        Email: c.email || "",
+        Teléfono: c.telefono || "",
+        Ciudad: c.ciudad || "",
+        Mensaje: c.mensaje || "",
+        Fecha: new Date(c.createdAt).toLocaleDateString("es-MX"),
+      })),
+      "clientes-alexa-tours"
+    );
+  };
+
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-heading text-3xl font-bold" style={{ color: "#0A5D8F" }}>Clientes / Leads</h1>
           <p className="text-sm text-gray-400 mt-1">{clientes.length} contactos recibidos</p>
         </div>
-        <input
-          type="search"
-          placeholder="Buscar por nombre, email, ciudad..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none w-72 focus:border-[#0E84C7] transition-colors"
-        />
+        <div className="flex items-center gap-3">
+          <input
+            type="search"
+            placeholder="Buscar por nombre, email, ciudad..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none w-64 focus:border-[#0E84C7] transition-colors"
+          />
+          <button
+            onClick={descargarCSV}
+            disabled={filtrados.length === 0}
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40 whitespace-nowrap"
+            style={{ backgroundColor: "#10B981" }}
+          >
+            ⬇ Exportar CSV
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -71,9 +97,7 @@ export default function AdminClientesPage() {
                   <td className="px-4 py-3">
                     {c.telefono
                       ? <a href={`https://wa.me/${c.telefono.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
-                          className="text-green-600 hover:underline">
-                          {c.telefono}
-                        </a>
+                          className="text-green-600 hover:underline">{c.telefono}</a>
                       : <span className="text-gray-300">—</span>}
                   </td>
                   <td className="px-4 py-3 text-gray-500">{c.ciudad || <span className="text-gray-300">—</span>}</td>

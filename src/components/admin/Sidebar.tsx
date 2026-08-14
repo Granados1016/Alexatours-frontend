@@ -25,13 +25,29 @@ const navSections = [
     items: [
       { href: "/admin/mensajes", label: "Mensajes", icon: "📧", exact: false },
       { href: "/admin/clientes", label: "Clientes", icon: "👥", exact: false },
-      { href: "/admin/reservas", label: "Reservas", icon: "📋", exact: false },
+      { href: "/admin/reservas", label: "Reservas", icon: "📋", exact: true },
+      { href: "/admin/reservas/calendario", label: "Calendario", icon: "📅", exact: false },
+      { href: "/admin/newsletter", label: "Newsletter", icon: "📨", exact: false },
+    ],
+  },
+  {
+    label: "Ventas",
+    items: [
+      { href: "/admin/cupones", label: "Cupones", icon: "🎟️", exact: false },
+    ],
+  },
+  {
+    label: "Recursos",
+    items: [
+      { href: "/admin/galeria", label: "Galería", icon: "🖼️", exact: false },
     ],
   },
   {
     label: "Sistema",
     items: [
-      { href: "/admin/configuracion", label: "Configuración", icon: "⚙️", exact: false },
+      { href: "/admin/usuarios", label: "Usuarios", icon: "👤", exact: false },
+      { href: "/admin/configuracion", label: "Configuración", icon: "⚙️", exact: true },
+      { href: "/admin/configuracion/correo", label: "Correo SMTP", icon: "✉️", exact: false },
     ],
   },
 ];

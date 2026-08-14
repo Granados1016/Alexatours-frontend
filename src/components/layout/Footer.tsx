@@ -10,7 +10,7 @@ export default function Footer({ config, waUrl }: FooterProps) {
   return (
     <footer style={{ backgroundColor: "#0A5D8F" }} className="text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-10">
           {/* Marca */}
           <div>
             <p className="font-heading text-2xl font-bold mb-2">
@@ -27,10 +27,15 @@ export default function Footer({ config, waUrl }: FooterProps) {
             </h4>
             <ul className="space-y-2 text-sm text-white/80">
               {[
-                { href: "/#destinos", label: "Destinos" },
-                { href: "/#paquetes", label: "Paquetes" },
-                { href: "/#nosotros", label: "Nosotros" },
+                { href: "/destinos", label: "Destinos" },
+                { href: "/paquetes", label: "Paquetes" },
+                { href: "/ofertas", label: "🔥 Ofertas" },
+                { href: "/comparador", label: "Comparar paquetes" },
+                { href: "/blog", label: "Blog" },
+                { href: "/faq", label: "Preguntas frecuentes" },
                 { href: "/contacto", label: "Contacto" },
+                { href: "/legal/privacidad", label: "Privacidad" },
+                { href: "/legal/terminos", label: "Términos" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="hover:text-white transition-colors">

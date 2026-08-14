@@ -1,45 +1,59 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://alexatours.mx";
+
+async function fetchJson<T>(url: string): Promise<T[]> {
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.data ?? []);
+  } catch {
+    return [];
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://alexatours.mx'
+  const [paquetes, destinos, articulos] = await Promise.all([
+    fetchJson<{ id: number; updated_at?: string }>(`${API}/paquetes`),
+    fetchJson<{ id: number; updated_at?: string }>(`${API}/destinos`),
+    fetchJson<{ slug: string; publicado_en?: string; created_at?: string }>(`${API}/blog?limit=100`),
+  ]);
 
-  // Páginas estáticas
-  const staticPages: MetadataRoute.Sitemap = [
-    { url: base, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-    { url: `${base}/contacto`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-  ]
+  const estaticas: MetadataRoute.Sitemap = [
+    { url: BASE, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
+    { url: `${BASE}/paquetes`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE}/destinos`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/ofertas`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
+    { url: `${BASE}/comparador`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${BASE}/contacto`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/faq`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/legal/privacidad`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/legal/terminos`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+  ];
 
-  // Paquetes dinámicos
-  let paquetePages: MetadataRoute.Sitemap = []
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/paquetes`, { next: { revalidate: 3600 } })
-    if (res.ok) {
-      const paquetes = await res.json()
-      paquetePages = paquetes.map((p: any) => ({
-        url: `${base}/paquetes/${p.id}`,
-        lastModified: new Date(p.updated_at || p.created_at || new Date()),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }))
-    }
-  } catch {}
+  const paquetesMap: MetadataRoute.Sitemap = paquetes.map((p) => ({
+    url: `${BASE}/paquetes/${p.id}`,
+    lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
 
-  // Artículos de blog dinámicos
-  let blogPages: MetadataRoute.Sitemap = []
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/blog`, { next: { revalidate: 3600 } })
-    if (res.ok) {
-      const data = await res.json()
-      const articulos = data.data || data
-      blogPages = articulos.map((a: any) => ({
-        url: `${base}/blog/${a.slug}`,
-        lastModified: new Date(a.updated_at || a.created_at || new Date()),
-        changeFrequency: 'monthly' as const,
-        priority: 0.7,
-      }))
-    }
-  } catch {}
+  const destinosMap: MetadataRoute.Sitemap = destinos.map((d) => ({
+    url: `${BASE}/destinos/${d.id}`,
+    lastModified: d.updated_at ? new Date(d.updated_at) : new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
 
-  return [...staticPages, ...paquetePages, ...blogPages]
+  const blogMap: MetadataRoute.Sitemap = articulos.map((a) => ({
+    url: `${BASE}/blog/${a.slug}`,
+    lastModified: a.publicado_en ? new Date(a.publicado_en) : new Date(a.created_at ?? Date.now()),
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  return [...estaticas, ...paquetesMap, ...destinosMap, ...blogMap];
 }

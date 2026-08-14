@@ -19,24 +19,30 @@ export interface SiteConfig {
   nombre_empresa: string;
   slogan: string;
   cta_whatsapp_msg: string;
+  google_analytics_id: string;
+  tawk_property_id: string;
+  tawk_widget_id: string;
   [key: string]: string;
 }
 
 const DEFAULTS: SiteConfig = {
-  whatsapp_numero:  "529991234567",
-  telefono_display: "+52 (999) 123-4567",
-  email_contacto:   "info@alexatours.mx",
-  direccion:        "Mérida, Yucatán, México",
-  instagram_url:    "https://instagram.com/alexatours",
-  facebook_url:     "https://facebook.com/alexatours",
-  tiktok_url:       "https://tiktok.com/@alexatours",
-  hero_titulo:      "Descubre el Mundo con Alexa Tours",
-  hero_subtitulo:   "Experiencias únicas, recuerdos para siempre. Viaja con los expertos.",
-  hero_cta_texto:   "Ver Paquetes",
-  hero_imagen_url:  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600",
-  nombre_empresa:   "Alexa Tours",
-  slogan:           "Tu agencia de viajes de confianza",
-  cta_whatsapp_msg: "Hola! Me interesa conocer más sobre sus paquetes de viaje.",
+  whatsapp_numero:     "529991234567",
+  telefono_display:    "+52 (999) 123-4567",
+  email_contacto:      "info@alexatours.mx",
+  direccion:           "Mérida, Yucatán, México",
+  instagram_url:       "https://instagram.com/alexatours",
+  facebook_url:        "https://facebook.com/alexatours",
+  tiktok_url:          "https://tiktok.com/@alexatours",
+  hero_titulo:         "Descubre el Mundo con Alexa Tours",
+  hero_subtitulo:      "Experiencias únicas, recuerdos para siempre. Viaja con los expertos.",
+  hero_cta_texto:      "Ver Paquetes",
+  hero_imagen_url:     "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600",
+  nombre_empresa:      "Alexa Tours",
+  slogan:              "Tu agencia de viajes de confianza",
+  cta_whatsapp_msg:    "Hola! Me interesa conocer más sobre sus paquetes de viaje.",
+  google_analytics_id: "",
+  tawk_property_id:    "",
+  tawk_widget_id:      "default",
 };
 
 export async function getSiteConfig(): Promise<SiteConfig> {

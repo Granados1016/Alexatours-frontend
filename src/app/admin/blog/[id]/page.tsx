@@ -6,6 +6,9 @@ import Link from "next/link";
 import { apiFetch } from "@/lib/auth";
 import ImageUpload from "@/components/admin/ImageUpload";
 import MarkdownToolbar from "@/components/admin/MarkdownToolbar";
+import dynamic from "next/dynamic";
+
+const RichEditor = dynamic(() => import("@/components/admin/RichEditor"), { ssr: false });
 
 interface Form {
   titulo: string;
@@ -35,6 +38,7 @@ export default function AdminBlogFormPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(!esNuevo);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
+  const [modoEditor, setModoEditor] = useState<"visual" | "markdown">("visual");
   const contenidoRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -145,19 +149,38 @@ export default function AdminBlogFormPage({ params }: { params: Promise<{ id: st
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-400 uppercase mb-1.5">Contenido *</label>
-              <MarkdownToolbar
-                textareaRef={contenidoRef}
-                onChange={(val) => setForm((f) => ({ ...f, contenido: val }))}
-              />
-              <textarea
-                ref={contenidoRef}
-                value={form.contenido}
-                onChange={(e) => setForm((f) => ({ ...f, contenido: e.target.value }))}
-                placeholder="Escribe el contenido completo del artículo aquí..."
-                rows={16}
-                className="w-full border border-gray-200 rounded-b-xl rounded-t-none px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 resize-y font-mono border-t-0"
-              />
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold text-gray-400 uppercase">Contenido *</label>
+                <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
+                  <button type="button" onClick={() => setModoEditor("visual")}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${modoEditor === "visual" ? "bg-white text-[#0A5D8F] shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>
+                    ✏️ Visual
+                  </button>
+                  <button type="button" onClick={() => setModoEditor("markdown")}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${modoEditor === "markdown" ? "bg-white text-[#0A5D8F] shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>
+                    MD Markdown
+                  </button>
+                </div>
+              </div>
+              {modoEditor === "visual" ? (
+                <RichEditor
+                  value={form.contenido}
+                  onChange={(html) => setForm((f) => ({ ...f, contenido: html }))}
+                  placeholder="Escribe el contenido completo del artículo..."
+                />
+              ) : (
+                <>
+                  <MarkdownToolbar textareaRef={contenidoRef} onChange={(val) => setForm((f) => ({ ...f, contenido: val }))} />
+                  <textarea
+                    ref={contenidoRef}
+                    value={form.contenido}
+                    onChange={(e) => setForm((f) => ({ ...f, contenido: e.target.value }))}
+                    placeholder="Escribe el contenido en Markdown..."
+                    rows={16}
+                    className="w-full border border-gray-200 rounded-b-xl rounded-t-none px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 resize-y font-mono border-t-0"
+                  />
+                </>
+              )}
             </div>
           </div>
 
@@ -216,6 +239,16 @@ export default function AdminBlogFormPage({ params }: { params: Promise<{ id: st
             >
               {guardando ? "Guardando..." : esNuevo ? "Crear artículo" : "Guardar cambios"}
             </button>
+            {!esNuevo && form.slug && (
+              <a
+                href={`/blog/${form.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full mt-2 py-2.5 rounded-xl text-sm font-medium border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+              >
+                👁 Vista previa
+              </a>
+            )}
           </div>
 
           {/* Categoría */}

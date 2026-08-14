@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { apiFetch } from "@/lib/auth";
+import { exportarCSV } from "@/lib/csv";
 
 type Estado = "pendiente" | "confirmada" | "cancelada";
 
@@ -82,6 +84,24 @@ export default function AdminReservasPage() {
     )
   );
 
+  const descargarCSV = () => {
+    exportarCSV(
+      filtradas.map((r) => ({
+        ID: r.id,
+        Cliente: r.nombre,
+        Email: r.email || "",
+        Teléfono: r.telefono || "",
+        Paquete: r.paqueteNombre || "",
+        "Fecha viaje": r.fechaViaje || "",
+        Personas: r.numPersonas,
+        "Precio total": r.precioTotal || 0,
+        Estado: r.estado,
+        Creado: new Date(r.createdAt).toLocaleDateString("es-MX"),
+      })),
+      "reservas-alexa-tours"
+    );
+  };
+
   // Contadores por estado
   const conteos = {
     pendiente:  reservas.filter((r) => r.estado === "pendiente").length,
@@ -99,13 +119,30 @@ export default function AdminReservasPage() {
           </h1>
           <p className="text-sm text-gray-400 mt-1">{reservas.length} reservas en total</p>
         </div>
-        <input
-          type="search"
-          placeholder="Buscar por nombre, email, paquete..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none w-full sm:w-72 focus:border-[#0E84C7] transition-colors"
-        />
+        <div className="flex items-center gap-3">
+          <input
+            type="search"
+            placeholder="Buscar por nombre, email, paquete..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none w-full sm:w-64 focus:border-[#0E84C7] transition-colors"
+          />
+          <Link
+            href="/admin/reservas/calendario"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white whitespace-nowrap flex items-center gap-1.5"
+            style={{ backgroundColor: "#0A5D8F" }}
+          >
+            📅 Calendario
+          </Link>
+          <button
+            onClick={descargarCSV}
+            disabled={filtradas.length === 0}
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40 whitespace-nowrap"
+            style={{ backgroundColor: "#10B981" }}
+          >
+            ⬇ CSV
+          </button>
+        </div>
       </div>
 
       {/* Tarjetas de resumen */}

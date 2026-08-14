@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { getSiteConfig } from '@/lib/configuracion'
 import { notFound } from 'next/navigation'
 import ReservaButton from './ReservaButton'
+import GaleriaPaquete from '@/components/GaleriaPaquete'
+import CotizacionRapida from '@/components/CotizacionRapida'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 
@@ -13,11 +15,16 @@ interface Paquete {
   precio: number
   dias: number
   imagen_url?: string
+  imagenUrl?: string
   destino?: string
   incluye?: string[] | string
   destacado?: boolean
   created_at?: string
   updated_at?: string
+  galeriaImagenes?: string
+  itinerario?: string
+  ofertaPrecio?: number
+  ofertaHasta?: string
 }
 
 async function getPaquete(id: string): Promise<Paquete | null> {
@@ -103,15 +110,52 @@ export default async function PaquetePage({ params }: { params: { id: string } }
 
   const incluye = parseIncluye(paquete.incluye)
 
+  // Galería de imágenes adicionales
+  const galeriaUrls: string[] = paquete.galeriaImagenes
+    ? paquete.galeriaImagenes.split(',').map(u => u.trim()).filter(Boolean)
+    : []
+
+  // Itinerario día a día
+  const itinerarioDias: string[] = paquete.itinerario
+    ? paquete.itinerario.split('\n').map(l => l.trim()).filter(Boolean)
+    : []
+
   const waNumero = config.whatsapp_numero.replace(/\D/g, '')
-  const waMsg = encodeURIComponent(`Hola, me interesa el paquete: ${paquete.nombre}`)
+  const precioStr = paquete.precio?.toLocaleString('es-MX') ?? ''
+  const diasStr = paquete.dias ? ` | ${paquete.dias} días` : ''
+  const waMsg = encodeURIComponent(
+    `Hola! 👋 Me interesa el paquete *${paquete.nombre}*${diasStr} — desde $${precioStr} MXN. ¿Tienen disponibilidad? Me gustaría recibir más información. ¡Gracias!`
+  )
   const waHref = `https://wa.me/${waNumero}?text=${waMsg}`
 
   const imagenSrc =
-    paquete.imagen_url ||
+    paquete.imagen_url || paquete.imagenUrl ||
     'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=80'
 
+  // Schema.org JSON-LD
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://alexatours.mx'
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: paquete.nombre,
+    description: paquete.descripcion || `Paquete de viaje ${paquete.nombre}`,
+    image: paquete.imagen_url || '',
+    url: `${base}/paquetes/${paquete.id}`,
+    offers: {
+      '@type': 'Offer',
+      price: paquete.precio,
+      priceCurrency: 'MXN',
+      availability: 'https://schema.org/InStock',
+      seller: { '@type': 'TravelAgency', name: 'Alexa Tours' },
+    },
+  }
+
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
     <div className="pt-16 min-h-screen" style={{ backgroundColor: '#F8F3E8' }}>
       {/* Hero imagen */}
       <div className="relative w-full h-72 sm:h-96 overflow-hidden">
@@ -161,7 +205,7 @@ export default async function PaquetePage({ params }: { params: { id: string } }
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Columna izquierda: descripción + incluye */}
+          {/* Columna izquierda: descripción + incluye + galería + itinerario */}
           <div className="lg:col-span-2 space-y-8">
 
             {/* Descripción */}
@@ -174,6 +218,11 @@ export default async function PaquetePage({ params }: { params: { id: string } }
                   {paquete.descripcion}
                 </p>
               </div>
+            )}
+
+            {/* Galería de imágenes */}
+            {galeriaUrls.length > 0 && (
+              <GaleriaPaquete imagenes={galeriaUrls} nombre={paquete.nombre} />
             )}
 
             {/* Lo que incluye */}
@@ -201,6 +250,26 @@ export default async function PaquetePage({ params }: { params: { id: string } }
                 </ul>
               </div>
             )}
+
+            {/* Itinerario día a día */}
+            {itinerarioDias.length > 0 && (
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm">
+                <h2 className="font-heading text-xl font-bold mb-4" style={{ color: '#0A5D8F' }}>
+                  🗓 Itinerario día a día
+                </h2>
+                <div className="space-y-4">
+                  {itinerarioDias.map((dia, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                        style={{ backgroundColor: '#D9B96E' }}>
+                        {i + 1}
+                      </div>
+                      <p className="text-sm leading-relaxed pt-1" style={{ color: '#444444' }}>{dia}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Columna derecha: precio + CTA */}
@@ -210,9 +279,28 @@ export default async function PaquetePage({ params }: { params: { id: string } }
               {/* Precio */}
               <div className="text-center mb-6">
                 <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Precio por persona</p>
-                <p className="font-heading text-4xl font-bold" style={{ color: '#0E84C7' }}>
-                  ${paquete.precio?.toLocaleString('es-MX')}
-                </p>
+                {paquete.ofertaPrecio && Number(paquete.ofertaPrecio) > 0 && Number(paquete.ofertaPrecio) < paquete.precio ? (
+                  <>
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <span className="text-lg text-gray-400 line-through">${paquete.precio?.toLocaleString('es-MX')}</span>
+                      <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                        -{Math.round(((paquete.precio - Number(paquete.ofertaPrecio)) / paquete.precio) * 100)}%
+                      </span>
+                    </div>
+                    <p className="font-heading text-4xl font-bold" style={{ color: '#E53E3E' }}>
+                      ${Number(paquete.ofertaPrecio).toLocaleString('es-MX')}
+                    </p>
+                    {paquete.ofertaHasta && (
+                      <p className="text-xs text-red-400 mt-1">
+                        ⏰ Oferta hasta: {new Date(paquete.ofertaHasta + 'T12:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="font-heading text-4xl font-bold" style={{ color: '#0E84C7' }}>
+                    ${paquete.precio?.toLocaleString('es-MX')}
+                  </p>
+                )}
                 <p className="text-xs text-gray-400 mt-1">MXN</p>
               </div>
 
@@ -280,6 +368,13 @@ export default async function PaquetePage({ params }: { params: { id: string } }
                 Solicitar cotización
               </Link>
 
+              {/* Cotización rápida */}
+              <CotizacionRapida
+                paqueteNombre={paquete.nombre}
+                precio={paquete.ofertaPrecio && Number(paquete.ofertaPrecio) > 0 ? Number(paquete.ofertaPrecio) : paquete.precio}
+                waNumero={waNumero}
+              />
+
               <p className="text-xs text-center text-gray-400 mt-4">
                 Atención personalizada desde Campeche
               </p>
@@ -306,5 +401,6 @@ export default async function PaquetePage({ params }: { params: { id: string } }
         </div>
       </div>
     </div>
+    </>
   )
 }

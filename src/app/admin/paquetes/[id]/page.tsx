@@ -11,6 +11,7 @@ interface Destino { id: number; nombre: string; }
 const emptyForm = {
   nombre: "", descripcion: "", precio: "", duracionDias: "",
   incluye: "", imagenUrl: "", destinoId: "", activo: true, destacado: false,
+  galeriaImagenes: "", itinerario: "", ofertaPrecio: "", ofertaHasta: "",
 };
 
 export default function PaqueteFormPage() {
@@ -38,6 +39,10 @@ export default function PaqueteFormPage() {
           destinoId: p.destino?.id ?? "",
           activo: p.activo ?? true,
           destacado: p.destacado ?? false,
+          galeriaImagenes: p.galeriaImagenes ?? "",
+          itinerario: p.itinerario ?? "",
+          ofertaPrecio: p.ofertaPrecio ?? "",
+          ofertaHasta: p.ofertaHasta ? p.ofertaHasta.slice(0, 10) : "",
         }))
         .catch(() => setError("No se encontró el paquete"))
         .finally(() => setLoading(false));
@@ -62,6 +67,8 @@ export default function PaqueteFormPage() {
         precio: Number(form.precio),
         duracionDias: Number(form.duracionDias),
         destinoId: form.destinoId ? Number(form.destinoId) : undefined,
+        ofertaPrecio: form.ofertaPrecio ? Number(form.ofertaPrecio) : undefined,
+        ofertaHasta: form.ofertaHasta || undefined,
       };
       if (isNew) {
         await apiFetch("/paquetes", { method: "POST", body: JSON.stringify(body) });
@@ -130,10 +137,51 @@ export default function PaqueteFormPage() {
 
         {/* Imagen */}
         <ImageUpload
-          label="Imagen del paquete"
+          label="Imagen principal del paquete"
           value={form.imagenUrl}
           onChange={(url) => setForm((f) => ({ ...f, imagenUrl: url }))}
         />
+
+        {/* Galería de imágenes */}
+        <Field label="Galería de imágenes (URLs separadas por coma)">
+          <textarea
+            name="galeriaImagenes"
+            rows={3}
+            value={form.galeriaImagenes}
+            onChange={handleChange}
+            className={inputClass}
+            placeholder="https://imagen1.jpg, https://imagen2.jpg, ..."
+          />
+          <p className="text-xs text-gray-300 mt-1">Pega las URLs de las fotos adicionales del paquete</p>
+        </Field>
+
+        {/* Itinerario */}
+        <Field label="Itinerario día a día (uno por línea: Día 1: Descripción)">
+          <textarea
+            name="itinerario"
+            rows={5}
+            value={form.itinerario}
+            onChange={handleChange}
+            className={inputClass}
+            placeholder={"Día 1: Llegada al aeropuerto y traslado al hotel\nDía 2: Tour por la ciudad colonial\nDía 3: Excursión a ruinas arqueológicas"}
+          />
+        </Field>
+
+        {/* Oferta */}
+        <div className="p-4 rounded-xl border border-dashed border-orange-200" style={{ backgroundColor: "#FFFBF0" }}>
+          <p className="text-sm font-semibold mb-3" style={{ color: "#B45309" }}>🔥 Precio de oferta (opcional)</p>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Precio oferta (MXN)">
+              <input name="ofertaPrecio" type="number" value={form.ofertaPrecio} onChange={handleChange}
+                className={inputClass} placeholder="15000" min={0} />
+            </Field>
+            <Field label="Válido hasta">
+              <input name="ofertaHasta" type="date" value={form.ofertaHasta} onChange={handleChange}
+                className={inputClass} />
+            </Field>
+          </div>
+          <p className="text-xs text-orange-400 mt-2">Aparecerá en la página de Ofertas y en el detalle del paquete</p>
+        </div>
 
         {/* Toggles */}
         <div className="flex gap-8">

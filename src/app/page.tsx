@@ -3,6 +3,7 @@ import Destinos from "@/components/sections/Destinos";
 import Paquetes from "@/components/sections/Paquetes";
 import PorQueNosotros from "@/components/sections/PorQueNosotros";
 import Testimonios from "@/components/sections/Testimonios";
+import Newsletter from "@/components/sections/Newsletter";
 import ContactoCTA from "@/components/sections/ContactoCTA";
 import { getSiteConfig, waUrl } from "@/lib/configuracion";
 
@@ -17,6 +18,7 @@ export default async function Home() {
       <Paquetes />
       <PorQueNosotros />
       <Testimonios />
+      <Newsletter />
       <ContactoCTA config={config} waUrl={whatsappUrl} />
     </>
   );

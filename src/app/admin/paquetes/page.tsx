@@ -18,6 +18,7 @@ interface Paquete {
 export default function AdminPaquetesPage() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([]);
   const [loading, setLoading] = useState(true);
+  const [duplicando, setDuplicando] = useState<number | null>(null);
 
   const cargar = () => {
     apiFetch("/paquetes")
@@ -27,6 +28,32 @@ export default function AdminPaquetesPage() {
   };
 
   useEffect(() => { cargar(); }, []);
+
+  const duplicar = async (p: Paquete) => {
+    setDuplicando(p.id);
+    try {
+      const original = await apiFetch(`/paquetes/${p.id}`);
+      const body = {
+        nombre: `${original.nombre} (copia)`,
+        descripcion: original.descripcion,
+        precio: original.precio,
+        duracionDias: original.duracionDias,
+        incluye: original.incluye,
+        imagenUrl: original.imagenUrl,
+        destinoId: original.destino?.id,
+        activo: false,
+        destacado: false,
+        galeriaImagenes: original.galeriaImagenes,
+        itinerario: original.itinerario,
+      };
+      await apiFetch("/paquetes", { method: "POST", body: JSON.stringify(body) });
+      cargar();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDuplicando(null);
+    }
+  };
 
   const toggleActivo = async (p: Paquete) => {
     await apiFetch(`/paquetes/${p.id}`, {
@@ -100,12 +127,18 @@ export default function AdminPaquetesPage() {
                     </button>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <Link href={`/admin/paquetes/${p.id}`}
                         className="text-xs px-3 py-1.5 rounded-lg font-medium text-white"
                         style={{ backgroundColor: "#0E84C7" }}>
                         Editar
                       </Link>
+                      <button onClick={() => duplicar(p)} disabled={duplicando === p.id}
+                        className="text-xs px-3 py-1.5 rounded-lg font-medium text-white disabled:opacity-50"
+                        style={{ backgroundColor: "#D9B96E" }}
+                        title="Duplicar paquete">
+                        {duplicando === p.id ? "..." : "⎘ Copia"}
+                      </button>
                       <button onClick={() => eliminar(p.id)}
                         className="text-xs px-3 py-1.5 rounded-lg font-medium text-red-500 border border-red-200 hover:bg-red-50">
                         Desactivar
