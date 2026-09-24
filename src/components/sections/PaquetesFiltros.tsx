@@ -8,8 +8,8 @@ interface Paquete {
   nombre: string;
   descripcion?: string;
   precio: number;
-  duracion_dias: number;
-  imagen_url?: string;
+  duracionDias: number;
+  imagenUrl?: string;
   destino?: { nombre: string; pais: string } | string;
   destacado?: boolean;
   incluye?: string[] | string;
@@ -93,7 +93,7 @@ export default function PaquetesFiltros({ paquetes, destinos }: Props) {
 
       // Filtro duración
       if (duracionFiltro) {
-        const dias = p.duracion_dias;
+        const dias = p.duracionDias;
         if (duracionFiltro === "1-4" && (dias < 1 || dias > 4)) return false;
         if (duracionFiltro === "5-7" && (dias < 5 || dias > 7)) return false;
         if (duracionFiltro === "8-14" && (dias < 8 || dias > 14)) return false;
@@ -229,7 +229,7 @@ export default function PaquetesFiltros({ paquetes, destinos }: Props) {
                 <div className="relative h-52 overflow-hidden bg-gray-100">
                   <img
                     src={
-                      p.imagen_url ||
+                      p.imagenUrl ||
                       "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80"
                     }
                     alt={p.nombre}
@@ -271,7 +271,7 @@ export default function PaquetesFiltros({ paquetes, destinos }: Props) {
                   {/* Precio + CTA */}
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                     <div>
-                      <p className="text-xs text-gray-400">{p.duracion_dias} días</p>
+                      <p className="text-xs text-gray-400">{p.duracionDias} días</p>
                       <p className="font-heading text-2xl font-bold" style={{ color: "#0E84C7" }}>
                         ${p.precio.toLocaleString("es-MX")}
                       </p>
